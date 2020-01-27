@@ -135,7 +135,11 @@ int lsh_pwd(char **args)
   
   return 1;
 }
-
+/**
+	Naredba ls ispisuje sadržaj trenutnog direktorija.
+	Parametar args je lista argumenata koju ne proučavamo.
+	Funkcija otvara direktorij i ispisuje njegov sadržaj te uvijek vraća 1 kako bi se program mogao nastaviti izvršavati.
+*/
 int lsh_ls(char **args)
 {
   struct dirent *de;
@@ -156,9 +160,14 @@ int lsh_ls(char **args)
 }
 
 /**
-  @brief Launch a program and wait for it to terminate.
-  @param args Null terminated list of arguments (including program).
-  @return Always returns 1, to continue execution.
+   Funkcija uzima listu argumenata, nakon toga forka proces i spremi povratnu vrijednost u pid.
+   Sada imamo dva procesa koja se istodobno izvršavaju.
+   U procesu-djetetu ulazimo u prvi if (pid == 0) i želimo pokrenuti naredbu koju je korisnik unio.
+   Za to koristimo jednu varijantu naredbe exec, konkretno execvp (očekuje ime programa i niz)
+   Ako naredba vrati -1 znači da je došlo do greške i to ispisujemo, nakon toga proces dijete umire i vraća se 1 kako bi se program nastavio izvršavati.
+   Ako je pid manji od 0 znači da se dogodila greška u forkanju te se ispiše greška i vrati 1 kako bi se program nastavio izvršavati.
+   Proces roditelj ulazi u else i čeka da se proces dijete izvrši.
+   To činimo naredbom waitpid(), odnosno čekamo da se promijeni status procesa. 
  */
 int lsh_launch(char **args)
 {
@@ -186,9 +195,7 @@ int lsh_launch(char **args)
 }
 
 /**
-   @brief Execute shell built-in or launch program.
-   @param args Null terminated list of arguments.
-   @return 1 if the shell should continue running, 0 if it should terminate
+  Pokreće ugrađene naredbe ili poziva lsh_launch kako bi se pokrenuo neki program
  */
 int lsh_execute(char **args)
 {
@@ -210,8 +217,8 @@ int lsh_execute(char **args)
 
 #define LSH_RL_BUFSIZE 1024
 /**
-   @brief Read a line of input from stdin.
-   @return The line from stdin.
+   Funkcija za čitanje linije. U while petlji čitamo upisane znakove i spremamo ih u buffer kao int vrijednosti, 
+   sve dok ne dođemo do novog reda ili EOF (EOF je integer i zbog toga se sve sprema kao int).
  */
 char *lsh_read_line(void)
 {
@@ -254,9 +261,7 @@ char *lsh_read_line(void)
 #define LSH_TOK_BUFSIZE 64
 #define LSH_TOK_DELIM " \t\r\n\a"
 /**
-   @brief Split a line into tokens (very naively).
-   @param line The line.
-   @return Null-terminated array of tokens.
+   Pročitanu liniju razdvajamo u listu tokena pomoću strtok() i vraćamo ju.
  */
 char **lsh_split_line(char *line)
 {
@@ -292,7 +297,9 @@ char **lsh_split_line(char *line)
 }
 
 /**
-   @brief Loop getting input and executing it.
+   Funkcija lsh_loop ispisuje ">", pročita liniju (funkcija lsh_read_line),
+   podijeli liniju u argumente (funkcija lsh_split_line) i iste pošalje u funkciju lsh_execute.
+   Ukoliko lsh_execute vrati 0, program prestaje s radom, a ukoliko vrati 1, kreće se ponovo od početka petlje.
  */
 void lsh_loop(void)
 {
@@ -312,10 +319,7 @@ void lsh_loop(void)
 }
 
 /**
-   @brief Main entry point.
-   @param argc Argument count.
-   @param argv Argument vector.
-   @return status code
+   	Početna točka programa, sve što radi je poziva lsh_loop i zatvara program
  */
 int main(int argc, char **argv)
 {
