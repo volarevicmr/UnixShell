@@ -1,15 +1,3 @@
-/***************************************************************************//**
-
-  @file         main.c
-
-  @author       Stephen Brennan
-
-  @date         Thursday,  8 January 2015
-
-  @brief        LSH (Libstephen SHell)
-
-*******************************************************************************/
-
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -20,7 +8,7 @@
 #include <dirent.h> 
 
 /*
-  Function Declarations for builtin shell commands:
+  Deklaracija funkcija za ugrađene shell naredbe. Ovo je potrebno jer bi se program slomio kad bismo pozvali "help" za samu naredbu "help"
  */
 int lsh_cd(char **args);
 int lsh_help(char **args);
@@ -31,7 +19,7 @@ int lsh_pwd(char **args);
 int lsh_ls(char **args);
 
 /*
-  List of builtin commands, followed by their corresponding functions.
+  Lista ugrađenih naredbi, nakon nje slijede odgovarajuće funkcije.
  */
 char *builtin_str[] = {
   "cd",
@@ -58,13 +46,13 @@ int lsh_num_builtins() {
 }
 
 /*
-  Builtin function implementations.
+  Implementacija
 */
 
 /**
-   @brief Bultin command: change directory.
-   @param args List of args.  args[0] is "cd".  args[1] is the directory.
-   @return Always returns 1, to continue executing.
+	Naredba cd - change directory.
+	Parametar args je lista argumenata, gdje je args[0] = "cd", a args[1] ime direktorija u koji se želimo premjestiti.
+	Funkcija uvijek vraća 1 kako bi se program mogao nastaviti izvršavati.
  */ 
 int lsh_cd(char **args)
 {
@@ -79,9 +67,9 @@ int lsh_cd(char **args)
 }
 
 /**
-   @brief Builtin command: print help.
-   @param args List of args.  Not examined.
-   @return Always returns 1, to continue executing.
+   	Naredba help ispisuje pomoć.
+	Parametar args je lista argumenata koju u ovom slučaju uopće ne ispitujemo.
+	Funkcija uvijek vraća 1 kako bi se program mogao nastaviti izvršavati.
  */
 int lsh_help(char **args)
 {
@@ -99,15 +87,20 @@ int lsh_help(char **args)
 }
 
 /**
-   @brief Builtin command: exit.
-   @param args List of args.  Not examined.
-   @return Always returns 0, to terminate execution.
+   	Naredba exit izlazi iz programa.
+	Parametar args je lista argumenata koju u ovom slučaju uopće ne ispitujemo.
+	Funkcija uvijek vraća 0 kako bi se program zaustavio.
  */
 int lsh_exit(char **args)
 {
   return 0;
 }
 
+/**
+	Naredba mkdir kreira novi direktorij sa zadanim imenom.
+	Parametar args je lista argumenata. args[0] = "mkdir" a args[1] ime direktorija kojeg kreiramo.
+	Funkcija kreira direktorij i uvijek vraća 1 kako bi se program mogao nastaviti izvršavati.
+*/
 int lsh_mkdir(char **args)
 {
   if (args[1] == NULL) {
@@ -118,11 +111,21 @@ int lsh_mkdir(char **args)
   return 1;
 }
 
+/**
+	Naredba clear "čisti prozor terminala".
+	Parametar args je lista argumenata koju ne proučavamo.
+	Funkcija postavi pokazivač na poziciju 0,0 i uvijek vraća 1 kako bi se program mogao nastaviti izvršavati.
+*/
 int lsh_clear(char **args)
 {
 	printf("\x1b[H\x1b[J");
 	return 1;
 }
+/**
+	Naredba pwd ispisuje putanju do trenutnog direktorija.
+	Parametar args je lista argumenata koju ne proučavamo.
+	Funkcija ispisuje put od roota do trenutnog direktorija i uvijek vraća 1 kako bi se program mogao nastaviti izvršavati.
+*/
 
 int lsh_pwd(char **args)
 {
